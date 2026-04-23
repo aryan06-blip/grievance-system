@@ -11,17 +11,23 @@ function Register() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
-    try {
-      await axios.post("https://grievance-system-w5ao.onrender.com/api/register", form);
+ const handleSubmit = async () => {
+try {
+await axios.post(
+"https://grievance-system-w5ao.onrender.com/api/register",
+form
+);
 
-      alert("Registered Successfully");
+```
+alert("Registered Successfully");
+navigate("/login");
+```
 
-      navigate("/login");
-    } catch (err) {
-      alert("Duplicate Email");
-    }
-  };
+} catch (err) {
+alert(err.response?.data?.message || "Registration failed");
+}
+};
+
 
  return (
   <div className="container">
