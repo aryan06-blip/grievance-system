@@ -1,47 +1,62 @@
-const Student = require("../models/Student");
+const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+exports.registerUser = async (req, res) => {
+try {
+const { name, email, password } = req.body;
 
-  const existing = await Student.findOne({ email });
+```
+const existingUser = await User.findOne({ email });
 
-  if (existing) {
-    return res.status(400).json({ message: "Email already exists" });
-  }
+if (existingUser) {
+  return res.status(400).json({ message: "Duplicate Email" });
+}
 
-  const hashed = await bcrypt.hash(password, 10);
+const hashedPassword = await bcrypt.hash(password, 10);
 
-  const student = await Student.create({
-    name,
-    email,
-    password: hashed
-  });
+const user = new User({
+  name,
+  email,
+  password: hashedPassword
+});
 
-  res.json(student);
+await user.save();
+
+res.status(201).json({ message: "Registered Successfully" });
+```
+
+} catch (error) {
+res.status(500).json({ message: "Server Error" });
+}
 };
 
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
+exports.loginUser = async (req, res) => {
+try {
+const { email, password } = req.body;
 
-  const student = await Student.findOne({ email });
+```
+const user = await User.findOne({ email });
 
-  if (!student) {
-    return res.status(400).json({ message: "Invalid login" });
-  }
+if (!user) {
+  return res.status(400).json({ message: "User Not Found" });
+}
 
-  const match = await bcrypt.compare(password, student.password);
+const isMatch = await bcrypt.compare(password, user.password);
 
-  if (!match) {
-    return res.status(400).json({ message: "Invalid password" });
-  }
+if (!isMatch) {
+  return res.status(400).json({ message: "Wrong Password" });
+}
 
-  const token = jwt.sign(
-    { id: student._id },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
+const token = jwt.sign(
+  { id: user._id },
+  process.env.JWT_SECRET
+);
 
-  res.json({ token });
+res.json({ token });
+```
+
+} catch (error) {
+res.status(500).json({ message: "Server Error" });
+}
 };
