@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 function Dashboard() {
 const token = localStorage.getItem("token");
@@ -13,7 +13,7 @@ description: "",
 category: ""
 });
 
-const fetchGrievances = async () => {
+const fetchGrievances = useCallback(async () => {
 const res = await axios.get(
 "https://grievance-system-w5ao.onrender.com/api/grievances",
 {
@@ -22,12 +22,8 @@ Authorization: token
 }
 }
 );
-
-```
 setGrievances(res.data);
-```
-
-};
+}, [token]);
 
 useEffect(() => {
 if (!token) {
@@ -35,7 +31,7 @@ window.location.href = "/login";
 } else {
 fetchGrievances();
 }
-}, [token]);
+}, [token, fetchGrievances]);
 
 const submitGrievance = async () => {
 await axios.post(
@@ -47,11 +43,7 @@ Authorization: token
 }
 }
 );
-
-```
 fetchGrievances();
-```
-
 };
 
 const deleteGrievance = async (id) => {
@@ -63,30 +55,20 @@ Authorization: token
 }
 }
 );
-
-```
 fetchGrievances();
-```
-
 };
 
 const updateGrievance = async (id) => {
 await axios.put(
 `https://grievance-system-w5ao.onrender.com/api/grievances/${id}`,
-{
-status: "Resolved"
-},
+{ status: "Resolved" },
 {
 headers: {
 Authorization: token
 }
 }
 );
-
-```
 fetchGrievances();
-```
-
 };
 
 const searchGrievance = async () => {
@@ -98,11 +80,7 @@ Authorization: token
 }
 }
 );
-
-```
 setGrievances(res.data);
-```
-
 };
 
 const logout = () => {
@@ -120,16 +98,12 @@ return ( <div className="container"> <h2>Student Dashboard</h2>
 
   <input
     placeholder="Description"
-    onChange={(e) =>
-      setForm({ ...form, description: e.target.value })
-    }
+    onChange={(e) => setForm({ ...form, description: e.target.value })}
   />
 
   <input
     placeholder="Category"
-    onChange={(e) =>
-      setForm({ ...form, category: e.target.value })
-    }
+    onChange={(e) => setForm({ ...form, category: e.target.value })}
   />
 
   <button onClick={submitGrievance}>Submit Grievance</button>
@@ -151,18 +125,13 @@ return ( <div className="container"> <h2>Student Dashboard</h2>
       <p>{g.status}</p>
 
       <div className="actions">
-        <button onClick={() => updateGrievance(g._id)}>
-          Resolve
-        </button>
-
-        <button onClick={() => deleteGrievance(g._id)}>
-          Delete
-        </button>
+        <button onClick={() => updateGrievance(g._id)}>Resolve</button>
+        <button onClick={() => deleteGrievance(g._id)}>Delete</button>
       </div>
     </div>
   ))}
 </div>
-```
+
 
 );
 }
